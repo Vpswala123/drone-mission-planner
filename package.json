@@ -1,0 +1,19 @@
+{
+  "name": "drone-mission-planner",
+  "version": "1.0.0",
+  "description": "Full-stack Drone Mission Planner with AI analysis",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm start",
+    "build": "cd frontend && npm run build",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "netlify-cli": "^17.15.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

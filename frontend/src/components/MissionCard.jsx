@@ -16,7 +16,7 @@ export function MissionCard({ mission, onDelete }) {
     <div className="mission-card">
       <div className="mission-header">
         <div>
-          <h3>{name || `Mission ${id.slice(-4)}`</h3>
+          <h3>{name || `Mission ${id.slice(-4)}`}</h3>
           <span className="mission-date">{new Date(createdAt).toLocaleDateString()}</span>
         </div>
         <button className="btn-delete" onClick={() => onDelete(id)} title="Delete mission">

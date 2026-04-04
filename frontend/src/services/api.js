@@ -1,10 +1,15 @@
-const API_URL = 'http://localhost:3001/api';
+// API URL - uses relative path for Netlify Functions
+const API_URL = import.meta.env.DEV ? 'http://localhost:3001/api' : '/.netlify/functions';
 
 /**
  * Analyze a mission
  */
 export async function analyzeMission(missionData) {
-  const response = await fetch(`${API_URL}/missions/analyze`, {
+  const endpoint = import.meta.env.DEV
+    ? `${API_URL}/missions/analyze`
+    : `${API_URL}/analyze`;
+
+  const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -21,37 +26,37 @@ export async function analyzeMission(missionData) {
 }
 
 /**
- * Get all missions
+ * Get all missions - uses localStorage for persistence
  */
 export async function getMissions() {
-  const response = await fetch(`${API_URL}/missions`);
+  const missions = JSON.parse(localStorage.getItem('missions') || '[]');
+  return { missions };
+}
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch missions');
-  }
-
-  return response.json();
+/**
+ * Save missions to localStorage
+ */
+export function saveMissions(missions) {
+  localStorage.setItem('missions', JSON.stringify(missions));
 }
 
 /**
  * Delete a mission
  */
 export async function deleteMission(id) {
-  const response = await fetch(`${API_URL}/missions/${id}`, {
-    method: 'DELETE',
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to delete mission');
-  }
-
-  return response.json();
+  const missions = JSON.parse(localStorage.getItem('missions') || '[]');
+  const filtered = missions.filter((m) => m.id !== id);
+  localStorage.setItem('missions', JSON.stringify(filtered));
+  return { success: true };
 }
 
 /**
  * Check API health
  */
 export async function checkHealth() {
-  const response = await fetch(`${API_URL.replace('/api', '')}/health`);
-  return response.json();
+  if (import.meta.env.DEV) {
+    const response = await fetch('http://localhost:3001/health');
+    return response.json();
+  }
+  return { status: 'ok', environment: 'production' };
 }
