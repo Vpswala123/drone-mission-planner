@@ -1,12 +1,29 @@
 import { useState } from 'react';
 import { MissionForm } from './components/MissionForm';
 import { MissionCard } from './components/MissionCard';
+import { AuthForm } from './components/AuthForm';
+import { UserMenu } from './components/UserMenu';
 import { useMissions } from './hooks/useMissions';
+import { useAuth } from './contexts/useAuth';
 import './App.css';
 
-function App() {
+function AppContent() {
   const { missions, loading, error, createMission, removeMission } = useMissions();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [selectedMission, setSelectedMission] = useState(null);
+
+  if (authLoading) {
+    return (
+      <div className="loading-screen">
+        <div className="loading-spinner"></div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <AuthForm />;
+  }
 
   const handleSubmit = async (formData) => {
     try {
@@ -27,11 +44,14 @@ function App() {
   };
 
   return (
-    <div className="app">
+    <>
       <header className="app-header">
-        <div className="container">
-          <h1>Drone Mission Planner</h1>
-          <p>Plan and analyze drone missions with AI-powered recommendations</p>
+        <div className="container header-content">
+          <div>
+            <h1>Drone Mission Planner</h1>
+            <p>Plan and analyze drone missions with AI-powered recommendations</p>
+          </div>
+          <UserMenu />
         </div>
       </header>
 
@@ -39,12 +59,7 @@ function App() {
         <div className="dashboard">
           <div className="sidebar">
             <MissionForm onSubmit={handleSubmit} loading={loading} />
-
-            {error && (
-              <div className="error-message">
-                {error}
-              </div>
-            )}
+            {error && <div className="error-message">{error}</div>}
           </div>
 
           <div className="content">
@@ -52,10 +67,7 @@ function App() {
               <div className="results-section">
                 <div className="section-header">
                   <h2>Mission Analysis Results</h2>
-                  <button
-                    className="btn-secondary"
-                    onClick={() => setSelectedMission(null)}
-                  >
+                  <button className="btn-secondary" onClick={() => setSelectedMission(null)}>
                     Back to Missions
                   </button>
                 </div>
@@ -70,7 +82,7 @@ function App() {
 
                 {missions.length === 0 ? (
                   <div className="empty-state">
-                    <div className="empty-icon">🚁</div>
+                    <div className="empty-icon" aria-hidden="true">DR</div>
                     <h3>No missions yet</h3>
                     <p>Create your first mission using the form on the left</p>
                   </div>
@@ -95,7 +107,11 @@ function App() {
                         </div>
                         <div className="preview-risk">
                           Risk:{' '}
-                          <span className={`risk-badge ${mission.analysis?.riskAnalysis?.level.toLowerCase()}`}>
+                          <span
+                            className={`risk-badge ${(
+                              mission.analysis?.riskAnalysis?.level || 'unknown'
+                            ).toLowerCase()}`}
+                          >
                             {mission.analysis?.riskAnalysis?.level || 'Unknown'}
                           </span>
                         </div>
@@ -114,6 +130,14 @@ function App() {
           <p>Powered by kimi-k2.5:cloud AI</p>
         </div>
       </footer>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <div className="app">
+      <AppContent />
     </div>
   );
 }

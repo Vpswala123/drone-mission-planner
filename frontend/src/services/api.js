@@ -1,62 +1,58 @@
 // API URL - uses relative path for Netlify Functions
-const API_URL = import.meta.env.DEV ? 'http://localhost:3001/api' : '/.netlify/functions';
+const API_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.DEV ? 'http://localhost:8888/.netlify/functions' : '/.netlify/functions');
+
+async function parseResponse(response, fallbackMessage) {
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(data?.error || fallbackMessage);
+  }
+
+  return data;
+}
+
+function getAuthHeaders() {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
 
 /**
  * Analyze a mission
  */
 export async function analyzeMission(missionData) {
-  const endpoint = import.meta.env.DEV
-    ? `${API_URL}/missions/analyze`
-    : `${API_URL}/analyze`;
-
-  const response = await fetch(endpoint, {
+  const response = await fetch(`${API_URL}/missions/analyze`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify(missionData),
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to analyze mission');
-  }
-
-  return response.json();
+  return parseResponse(response, 'Failed to analyze mission');
 }
 
 /**
- * Get all missions - uses localStorage for persistence
+ * Get all missions for current user
  */
 export async function getMissions() {
-  const missions = JSON.parse(localStorage.getItem('missions') || '[]');
-  return { missions };
-}
+  const response = await fetch(`${API_URL}/missions/list`, {
+    headers: getAuthHeaders(),
+  });
 
-/**
- * Save missions to localStorage
- */
-export function saveMissions(missions) {
-  localStorage.setItem('missions', JSON.stringify(missions));
+  return parseResponse(response, 'Failed to fetch missions');
 }
 
 /**
  * Delete a mission
  */
 export async function deleteMission(id) {
-  const missions = JSON.parse(localStorage.getItem('missions') || '[]');
-  const filtered = missions.filter((m) => m.id !== id);
-  localStorage.setItem('missions', JSON.stringify(filtered));
-  return { success: true };
-}
+  const response = await fetch(`${API_URL}/missions/delete/${id}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+  });
 
-/**
- * Check API health
- */
-export async function checkHealth() {
-  if (import.meta.env.DEV) {
-    const response = await fetch('http://localhost:3001/health');
-    return response.json();
-  }
-  return { status: 'ok', environment: 'production' };
+  return parseResponse(response, 'Failed to delete mission');
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { analyzeMission, getMissions, deleteMission, saveMissions } from '../services/api';
+import { analyzeMission, getMissions, deleteMission } from '../services/api';
 
 export function useMissions() {
   const [missions, setMissions] = useState([]);
@@ -25,9 +25,7 @@ export function useMissions() {
 
     try {
       const { mission } = await analyzeMission(missionData);
-      const updatedMissions = [mission, ...missions];
-      setMissions(updatedMissions);
-      saveMissions(updatedMissions);
+      setMissions((currentMissions) => [mission, ...currentMissions]);
       return mission;
     } catch (err) {
       setError(err.message);
@@ -40,9 +38,7 @@ export function useMissions() {
   const removeMission = async (id) => {
     try {
       await deleteMission(id);
-      const updatedMissions = missions.filter((m) => m.id !== id);
-      setMissions(updatedMissions);
-      saveMissions(updatedMissions);
+      setMissions((currentMissions) => currentMissions.filter((m) => m.id !== id));
     } catch (err) {
       setError(err.message);
       throw err;

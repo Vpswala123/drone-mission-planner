@@ -1,128 +1,92 @@
 # Drone Mission Planner
 
-A full-stack web application for planning and analyzing drone missions with AI-powered recommendations using kimi-k2.5:cloud API.
+A full-stack web application for planning and analyzing drone missions with AI-powered recommendations using the `kimi-k2.5:cloud` API.
 
 ## Features
 
-- Mission input (distance, payload, environment, weather, terrain)
+- Mission input for distance, payload, environment, weather, and terrain
 - AI-generated drone recommendations
-- Risk analysis (Low/Medium/High)
-- Flight estimation (duration, battery, range)
-- Mission history with detailed analysis
-- Clean, responsive dashboard UI
+- Risk analysis with mitigation steps
+- Flight estimation for time, battery usage, and range
+- User authentication with separate mission history
+- Netlify deployment via serverless functions
 
 ## Tech Stack
 
-**Frontend:**
-- React 18 with Vite
+**Frontend**
+- React with Vite
 - Custom CSS
-- REST API integration
+- Recharts for analytics
 
-**Backend:**
-- Node.js with Express
-- CORS enabled
-- kimi-k2.5:cloud AI integration
+**Backend**
+- Netlify serverless functions
+- MongoDB for auth and mission history
+- JWT authentication
+- `kimi-k2.5:cloud` AI integration
 
 ## Project Structure
 
-```
+```text
 drone-mission-planner/
-├── backend/
-│   ├── package.json
-│   ├── server.js
-│   ├── .env.example
-│   ├── routes/
-│   │   └── missions.js
-│   └── services/
-│       └── aiAnalysis.js
-├── frontend/
-│   ├── package.json
-│   ├── src/
-│   │   ├── App.jsx
-│   │   ├── App.css
-│   │   ├── components/
-│   │   │   ├── MissionForm.jsx
-│   │   │   ├── MissionForm.css
-│   │   │   ├── MissionCard.jsx
-│   │   │   └── MissionCard.css
-│   │   ├── hooks/
-│   │   │   └── useMissions.js
-│   │   └── services/
-│   │       └── api.js
-│   └── ...
-└── README.md
+|-- frontend/
+|   |-- src/
+|   |   |-- components/
+|   |   |-- contexts/
+|   |   |-- hooks/
+|   |   `-- services/
+|-- netlify/
+|   `-- functions/
+|       |-- auth/
+|       |-- missions/
+|       `-- utils/
+|-- backend/
+|   `-- server.js
+`-- README.md
 ```
 
-## Getting Started
+## Local Development
 
-### Prerequisites
+1. Install dependencies:
 
-- Node.js 18+
-- npm
-- kimi-k2.5:cloud API key
+```bash
+npm install
+cd frontend && npm install
+cd ../netlify/functions && npm install
+```
 
-### Backend Setup
+2. Configure environment variables:
+
+```bash
+KIMI_API_KEY=your_kimi_api_key_here
+MONGODB_URI=your_mongodb_connection_string_here
+JWT_SECRET=replace_with_a_long_random_secret
+```
+
+3. Start the unified local app:
+
+```bash
+netlify dev
+```
+
+The app will run on `http://localhost:8888` with the frontend and serverless API together.
+
+4. Optional Express compatibility server:
 
 ```bash
 cd backend
-cp .env.example .env
-# Edit .env and add your KIMI_API_KEY
 npm install
 npm start
 ```
 
-The backend will run on http://localhost:3001
-
-### Frontend Setup
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-The frontend will run on http://localhost:5173
-
-## Environment Variables
-
-Backend `.env`:
-```
-KIMI_API_KEY=your_kimi_api_key_here
-PORT=3001
-```
+This exposes the same auth and mission behavior at `http://localhost:3001/api/*` by reusing the Netlify handlers.
 
 ## API Endpoints
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /health | Health check |
-| GET | /api/missions | Get all missions |
-| POST | /api/missions/analyze | Create and analyze mission |
-| DELETE | /api/missions/:id | Delete a mission |
-
-## AI Response Format
-
-```json
-{
-  "recommendations": {
-    "droneType": "Recommended drone model/type",
-    "batteryCapacity": "Recommended battery capacity in mAh",
-    "flightMode": "Recommended flight mode",
-    "speed": "Recommended cruising speed in km/h"
-  },
-  "riskAnalysis": {
-    "level": "Low/Medium/High",
-    "factors": ["risk factor 1", "risk factor 2"],
-    "mitigation": ["mitigation 1", "mitigation 2"]
-  },
-  "flightEstimation": {
-    "duration": "Estimated flight time in minutes",
-    "batteryNeeded": "Number of battery swaps needed",
-    "range": "Estimated range coverage"
-  }
-}
-```
-
-## License
-
-MIT
+| --- | --- | --- |
+| POST | `/.netlify/functions/auth/register` | Register a user |
+| POST | `/.netlify/functions/auth/login` | Login a user |
+| GET | `/.netlify/functions/auth/me` | Get the current user |
+| GET | `/.netlify/functions/missions/list` | Get the current user's missions |
+| POST | `/.netlify/functions/missions/analyze` | Create and analyze a mission |
+| DELETE | `/.netlify/functions/missions/delete/:id` | Delete a mission |

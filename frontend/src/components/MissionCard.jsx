@@ -1,14 +1,19 @@
 import './MissionCard.css';
 
 export function MissionCard({ mission, onDelete }) {
-  const { id, name, distance, payload, environment, weather, terrain, analysis, createdAt } = mission;
+  const { id, name, distance, payload, environment, weather, terrain, analysis, createdAt } =
+    mission;
 
   const getRiskColor = (level) => {
     switch (level) {
-      case 'Low': return '#22c55e';
-      case 'Medium': return '#f59e0b';
-      case 'High': return '#ef4444';
-      default: return '#6b7280';
+      case 'Low':
+        return '#22c55e';
+      case 'Medium':
+        return '#f59e0b';
+      case 'High':
+        return '#ef4444';
+      default:
+        return '#6b7280';
     }
   };
 
@@ -20,16 +25,26 @@ export function MissionCard({ mission, onDelete }) {
           <span className="mission-date">{new Date(createdAt).toLocaleDateString()}</span>
         </div>
         <button className="btn-delete" onClick={() => onDelete(id)} title="Delete mission">
-          ×
+          x
         </button>
       </div>
 
       <div className="mission-params">
-        <div className="param"><span>Distance:</span> {distance} km</div>
-        <div className="param"><span>Payload:</span> {payload} kg</div>
-        <div className="param"><span>Environment:</span> {environment}</div>
-        <div className="param"><span>Weather:</span> {weather}</div>
-        <div className="param"><span>Terrain:</span> {terrain}</div>
+        <div className="param">
+          <span>Distance:</span> {distance} km
+        </div>
+        <div className="param">
+          <span>Payload:</span> {payload} kg
+        </div>
+        <div className="param">
+          <span>Environment:</span> {environment}
+        </div>
+        <div className="param">
+          <span>Weather:</span> {weather}
+        </div>
+        <div className="param">
+          <span>Terrain:</span> {terrain}
+        </div>
       </div>
 
       {analysis && (
@@ -65,8 +80,10 @@ export function MissionCard({ mission, onDelete }) {
               {analysis.riskAnalysis?.level} Risk
             </div>
             <div className="risk-factors">
-              {analysis.riskAnalysis?.factors?.map((factor, i) => (
-                <div key={i} className="risk-factor">⚠️ {factor}</div>
+              {analysis.riskAnalysis?.factors?.map((factor, index) => (
+                <div key={index} className="risk-factor">
+                  Warning: {factor}
+                </div>
               ))}
             </div>
           </div>

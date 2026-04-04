@@ -4,52 +4,49 @@ This app is configured for Netlify deployment with serverless functions.
 
 ## Quick Deploy
 
-### Option 1: Netlify CLI (Recommended)
+### Option 1: Netlify CLI
 
 1. Install Netlify CLI:
+
 ```bash
 npm install -g netlify-cli
 ```
 
-2. Login to Netlify:
+2. Log in:
+
 ```bash
 netlify login
 ```
 
 3. Initialize and deploy:
+
 ```bash
 netlify init
 netlify deploy --prod
 ```
 
-### Option 2: Git + Continuous Deployment
+### Option 2: Git-Based Deployment
 
-1. Push to GitHub:
+1. Push the repository to GitHub.
+2. In the Netlify dashboard, import the repository.
+3. Netlify will read the build settings from `netlify.toml`.
+
+## Required Environment Variables
+
+Set these in Netlify under Site settings > Environment variables:
+
 ```bash
-git add .
-git commit -m "Add Netlify deployment config"
-git push origin master
-```
-
-2. Go to [Netlify Dashboard](https://app.netlify.com/)
-3. Click "Add new site" → "Import an existing project"
-4. Select your GitHub repo
-5. Build settings are auto-detected from `netlify.toml`
-6. Click "Deploy site"
-
-## Environment Variables
-
-Add these in Netlify Dashboard → Site settings → Environment variables:
-
-```
 KIMI_API_KEY=your_kimi_api_key_here
+MONGODB_URI=your_mongodb_connection_string_here
+JWT_SECRET=replace_with_a_long_random_secret
 ```
 
-Without this, the app will use fallback analysis (works fine for demo).
+Without `KIMI_API_KEY`, the app falls back to heuristic mission analysis.
 
 ## Build Settings
 
-Netlify will automatically use these from `netlify.toml`:
+Netlify uses the values from `netlify.toml`:
+
 - Build command: `cd frontend && npm install && npm run build`
 - Publish directory: `frontend/dist`
 - Functions directory: `netlify/functions`
@@ -57,25 +54,17 @@ Netlify will automatically use these from `netlify.toml`:
 ## Local Testing
 
 ```bash
-# Install dependencies
 npm install
-cd frontend && npm install && cd ..
-
-# Run Netlify dev server (includes functions)
+cd frontend && npm install
+cd ../netlify/functions && npm install
+cd ../..
 netlify dev
 ```
 
-This starts the app at `http://localhost:8888` with both frontend and API working.
+This starts the app at `http://localhost:8888` with the frontend and functions together.
 
-## Features
+## Deployment Notes
 
-- **Frontend**: React app deployed to CDN
-- **Backend**: Serverless functions at `/.netlify/functions/`
-- **AI Analysis**: Powered by kimi-k2.5:cloud API
-- **Persistence**: localStorage for mission history
-
-## URL Structure
-
-After deployment:
-- Site: `https://your-site-name.netlify.app`
-- API: `https://your-site-name.netlify.app/.netlify/functions/analyze`
+- Frontend assets are served from the CDN.
+- API routes are served from `/.netlify/functions/`.
+- Mission history and auth data are stored in MongoDB.
