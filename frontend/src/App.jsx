@@ -9,7 +9,7 @@ import './App.css';
 
 function AppContent() {
   const { missions, loading, error, createMission, removeMission } = useMissions();
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated, loading: authLoading, authEnabled } = useAuth();
   const [selectedMission, setSelectedMission] = useState(null);
 
   if (authLoading) {
@@ -49,7 +49,11 @@ function AppContent() {
         <div className="container header-content">
           <div>
             <h1>Drone Mission Planner</h1>
-            <p>Plan and analyze drone missions with AI-powered recommendations</p>
+            <p>
+              {authEnabled
+                ? 'Plan and analyze drone missions with AI-powered recommendations'
+                : 'Public demo mode with local mission analysis and browser-only storage'}
+            </p>
           </div>
           <UserMenu />
         </div>
@@ -127,7 +131,11 @@ function AppContent() {
 
       <footer className="app-footer">
         <div className="container">
-          <p>Powered by kimi-k2.5:cloud AI</p>
+          <p>
+            {authEnabled
+              ? 'Powered by kimi-k2.5:cloud AI'
+              : 'Running in public demo mode without external API keys'}
+          </p>
         </div>
       </footer>
     </>

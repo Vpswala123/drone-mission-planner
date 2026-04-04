@@ -1,7 +1,5 @@
-// API URL - uses relative path for Netlify Functions
-const API_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  (import.meta.env.DEV ? 'http://localhost:8888/.netlify/functions' : '/.netlify/functions');
+import { AUTH_ENABLED, API_BASE_URL, STORAGE_KEYS } from '../config';
+import { createDemoMission } from './demoAnalysis';
 
 async function parseResponse(response, fallbackMessage) {
   const data = await response.json().catch(() => null);
@@ -14,18 +12,38 @@ async function parseResponse(response, fallbackMessage) {
 }
 
 function getAuthHeaders() {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem(STORAGE_KEYS.token);
   return {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 }
 
+function loadStoredMissions() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.missions) || '[]');
+  } catch {
+    localStorage.removeItem(STORAGE_KEYS.missions);
+    return [];
+  }
+}
+
+function storeMissions(missions) {
+  localStorage.setItem(STORAGE_KEYS.missions, JSON.stringify(missions));
+}
+
 /**
  * Analyze a mission
  */
 export async function analyzeMission(missionData) {
-  const response = await fetch(`${API_URL}/missions/analyze`, {
+  if (!AUTH_ENABLED) {
+    const mission = createDemoMission(missionData);
+    const missions = [mission, ...loadStoredMissions()];
+    storeMissions(missions);
+    return { success: true, mission };
+  }
+
+  const response = await fetch(`${API_BASE_URL}/missions/analyze`, {
     method: 'POST',
     headers: getAuthHeaders(),
     body: JSON.stringify(missionData),
@@ -38,7 +56,11 @@ export async function analyzeMission(missionData) {
  * Get all missions for current user
  */
 export async function getMissions() {
-  const response = await fetch(`${API_URL}/missions/list`, {
+  if (!AUTH_ENABLED) {
+    return { missions: loadStoredMissions() };
+  }
+
+  const response = await fetch(`${API_BASE_URL}/missions/list`, {
     headers: getAuthHeaders(),
   });
 
@@ -49,7 +71,13 @@ export async function getMissions() {
  * Delete a mission
  */
 export async function deleteMission(id) {
-  const response = await fetch(`${API_URL}/missions/delete/${id}`, {
+  if (!AUTH_ENABLED) {
+    const missions = loadStoredMissions().filter((mission) => mission.id !== id);
+    storeMissions(missions);
+    return { success: true };
+  }
+
+  const response = await fetch(`${API_BASE_URL}/missions/delete/${id}`, {
     method: 'DELETE',
     headers: getAuthHeaders(),
   });

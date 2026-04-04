@@ -2,7 +2,7 @@ import { useAuth } from '../contexts/useAuth';
 import './UserMenu.css';
 
 export function UserMenu() {
-  const { user, logout } = useAuth();
+  const { user, logout, authEnabled } = useAuth();
 
   return (
     <div className="user-menu">
@@ -12,12 +12,16 @@ export function UserMenu() {
         </div>
         <div className="user-details">
           <span className="user-name">{user?.name || 'User'}</span>
-          <span className="user-email">{user?.email}</span>
+          <span className="user-email">
+            {authEnabled ? user?.email : 'Public demo mode'}
+          </span>
         </div>
       </div>
-      <button className="logout-button" onClick={logout}>
-        Sign Out
-      </button>
+      {authEnabled ? (
+        <button className="logout-button" onClick={logout}>
+          Sign Out
+        </button>
+      ) : null}
     </div>
   );
 }

@@ -1,12 +1,31 @@
-const API_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  (import.meta.env.DEV ? 'http://localhost:8888/.netlify/functions' : '/.netlify/functions');
+import { API_BASE_URL, AUTH_ENABLED, STORAGE_KEYS } from '../config';
+
+const DEMO_USER = {
+  id: 'guest-user',
+  name: 'Guest Pilot',
+  email: 'guest@local.demo',
+};
+
+function demoAuthResponse() {
+  localStorage.setItem(STORAGE_KEYS.token, 'guest-session');
+  localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(DEMO_USER));
+
+  return {
+    success: true,
+    token: 'guest-session',
+    user: DEMO_USER,
+  };
+}
 
 /**
  * Register a new user
  */
 export async function register(email, password, name) {
-  const response = await fetch(`${API_URL}/auth/register`, {
+  if (!AUTH_ENABLED) {
+    return demoAuthResponse();
+  }
+
+  const response = await fetch(`${API_BASE_URL}/auth/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -27,7 +46,11 @@ export async function register(email, password, name) {
  * Login user
  */
 export async function login(email, password) {
-  const response = await fetch(`${API_URL}/auth/login`, {
+  if (!AUTH_ENABLED) {
+    return demoAuthResponse();
+  }
+
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -48,7 +71,11 @@ export async function login(email, password) {
  * Get current user
  */
 export async function getCurrentUser(token) {
-  const response = await fetch(`${API_URL}/auth/me`, {
+  if (!AUTH_ENABLED) {
+    return { user: DEMO_USER };
+  }
+
+  const response = await fetch(`${API_BASE_URL}/auth/me`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
