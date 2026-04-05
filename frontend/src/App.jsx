@@ -3,14 +3,16 @@ import { MissionForm } from './components/MissionForm';
 import { MissionCard } from './components/MissionCard';
 import { AuthForm } from './components/AuthForm';
 import { UserMenu } from './components/UserMenu';
+import { Dashboard } from './components/Dashboard';
 import { useMissions } from './hooks/useMissions';
 import { useAuth } from './contexts/useAuth';
 import './App.css';
 
 function AppContent() {
-  const { missions, loading, error, createMission, removeMission } = useMissions();
+  const { missions, loading, error, notice, createMission, removeMission } = useMissions();
   const { isAuthenticated, loading: authLoading, authEnabled } = useAuth();
   const [selectedMission, setSelectedMission] = useState(null);
+  const [showAuthForm, setShowAuthForm] = useState(false);
 
   if (authLoading) {
     return (
@@ -19,10 +21,6 @@ function AppContent() {
         <p>Loading...</p>
       </div>
     );
-  }
-
-  if (!isAuthenticated) {
-    return <AuthForm />;
   }
 
   const handleSubmit = async (formData) => {
@@ -52,10 +50,10 @@ function AppContent() {
             <p>
               {authEnabled
                 ? 'Plan and analyze drone missions with AI-powered recommendations'
-                : 'Free demo mode with browser-local accounts and mission history'}
+                : 'Analyze missions freely. Sign in only if you want saved history and progress tracking.'}
             </p>
           </div>
-          <UserMenu />
+          <UserMenu onOpenAuth={() => setShowAuthForm(true)} />
         </div>
       </header>
 
@@ -63,10 +61,33 @@ function AppContent() {
         <div className="dashboard">
           <div className="sidebar">
             <MissionForm onSubmit={handleSubmit} loading={loading} />
+
+            {!authEnabled && !isAuthenticated ? (
+              <div className="error-message">
+                History is optional. Create an account only if you want to save missions and progress.
+                <div style={{ marginTop: '0.75rem' }}>
+                  <button className="btn-secondary" onClick={() => setShowAuthForm((current) => !current)}>
+                    {showAuthForm ? 'Hide Account Form' : 'Sign In to Save History'}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
+            {showAuthForm ? (
+              <AuthForm
+                compact
+                onSuccess={() => setShowAuthForm(false)}
+                onCancel={() => setShowAuthForm(false)}
+              />
+            ) : null}
+
             {error && <div className="error-message">{error}</div>}
+            {notice && <div className="error-message">{notice}</div>}
           </div>
 
           <div className="content">
+            {missions.length > 0 ? <Dashboard missions={missions} /> : null}
+
             {selectedMission ? (
               <div className="results-section">
                 <div className="section-header">
@@ -75,20 +96,29 @@ function AppContent() {
                     Back to Missions
                   </button>
                 </div>
+                {!authEnabled && !isAuthenticated ? (
+                  <div className="error-message">
+                    This result is temporary. Sign in if you want it added to your mission history.
+                  </div>
+                ) : null}
                 <MissionCard mission={selectedMission} onDelete={handleDelete} />
               </div>
             ) : (
               <div className="missions-section">
                 <div className="section-header">
-                  <h2>Mission History</h2>
+                  <h2>{isAuthenticated || authEnabled ? 'Mission History' : 'Saved Mission History'}</h2>
                   <span className="mission-count">{missions.length} missions</span>
                 </div>
 
                 {missions.length === 0 ? (
                   <div className="empty-state">
                     <div className="empty-icon" aria-hidden="true">DR</div>
-                    <h3>No missions yet</h3>
-                    <p>Create your first mission using the form on the left</p>
+                    <h3>No saved missions yet</h3>
+                    <p>
+                      {isAuthenticated || authEnabled
+                        ? 'Create your first mission using the form on the left'
+                        : 'Analyze a mission now, then sign in if you want to keep it in your history'}
+                    </p>
                   </div>
                 ) : (
                   <div className="missions-grid">
@@ -134,7 +164,7 @@ function AppContent() {
           <p>
             {authEnabled
               ? 'Powered by kimi-k2.5:cloud AI'
-              : 'Running in free demo mode without external API keys'}
+              : 'Free demo mode with optional accounts, saved history, and progress analytics'}
           </p>
         </div>
       </footer>

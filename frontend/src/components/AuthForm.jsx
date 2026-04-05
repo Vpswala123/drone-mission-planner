@@ -3,7 +3,7 @@ import { login, register } from '../services/authApi';
 import { useAuth } from '../contexts/useAuth';
 import './AuthForm.css';
 
-export function AuthForm() {
+export function AuthForm({ onSuccess, onCancel, compact = false }) {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
@@ -30,6 +30,7 @@ export function AuthForm() {
         : await register(formData.email, formData.password, formData.name);
 
       authLogin(response.token, response.user);
+      onSuccess?.(response.user);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -44,13 +45,13 @@ export function AuthForm() {
   };
 
   return (
-    <div className="auth-container">
+    <div className={compact ? 'auth-container auth-container-compact' : 'auth-container'}>
       <div className="auth-card">
         <h2>{isLogin ? 'Welcome Back' : 'Create Account'}</h2>
         <p className="auth-subtitle">
           {isLogin
-            ? 'Sign in to access your missions'
-            : 'Sign up to start planning missions'}
+            ? 'Sign in to keep your mission history'
+            : 'Create an account to save mission history and progress'}
         </p>
 
         {error && <div className="auth-error">{error}</div>}
@@ -109,6 +110,14 @@ export function AuthForm() {
             {isLogin ? 'Sign Up' : 'Sign In'}
           </button>
         </div>
+
+        {onCancel ? (
+          <div className="auth-toggle">
+            <button onClick={onCancel} className="toggle-link">
+              Continue without saving
+            </button>
+          </div>
+        ) : null}
       </div>
     </div>
   );

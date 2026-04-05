@@ -5,6 +5,7 @@ export function useMissions() {
   const [missions, setMissions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [notice, setNotice] = useState(null);
 
   const fetchMissions = useCallback(async () => {
     try {
@@ -22,11 +23,18 @@ export function useMissions() {
   const createMission = async (missionData) => {
     setLoading(true);
     setError(null);
+    setNotice(null);
 
     try {
-      const { mission } = await analyzeMission(missionData);
-      setMissions((currentMissions) => [mission, ...currentMissions]);
-      return mission;
+      const result = await analyzeMission(missionData);
+
+      if (result.persisted) {
+        setMissions((currentMissions) => [result.mission, ...currentMissions]);
+      } else if (result.message) {
+        setNotice(result.message);
+      }
+
+      return result.mission;
     } catch (err) {
       setError(err.message);
       throw err;
@@ -49,6 +57,7 @@ export function useMissions() {
     missions,
     loading,
     error,
+    notice,
     createMission,
     removeMission,
     refreshMissions: fetchMissions,

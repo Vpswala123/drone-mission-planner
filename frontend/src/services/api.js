@@ -57,24 +57,27 @@ function storeMissions(missions) {
   localStorage.setItem(getMissionStorageKey(user.id), JSON.stringify(missions));
 }
 
-/**
- * Analyze a mission
- */
 export async function analyzeMission(missionData) {
   if (!AUTH_ENABLED) {
     const user = getStoredUser();
+    const mission = createDemoMission(missionData);
 
     if (!user?.id) {
-      throw new Error('Please sign in to create missions');
+      return {
+        success: true,
+        mission,
+        persisted: false,
+        message: 'Sign in to save this mission to your history.',
+      };
     }
 
-    const mission = createDemoMission({
-      ...missionData,
-      name: missionData.name,
-    });
     const missions = [mission, ...loadStoredMissions()];
     storeMissions(missions);
-    return { success: true, mission };
+    return {
+      success: true,
+      mission,
+      persisted: true,
+    };
   }
 
   const response = await fetch(`${API_BASE_URL}/missions/analyze`, {
@@ -86,9 +89,6 @@ export async function analyzeMission(missionData) {
   return parseResponse(response, 'Failed to analyze mission');
 }
 
-/**
- * Get all missions for current user
- */
 export async function getMissions() {
   if (!AUTH_ENABLED) {
     return { missions: loadStoredMissions() };
@@ -101,9 +101,6 @@ export async function getMissions() {
   return parseResponse(response, 'Failed to fetch missions');
 }
 
-/**
- * Delete a mission
- */
 export async function deleteMission(id) {
   if (!AUTH_ENABLED) {
     const missions = loadStoredMissions().filter((mission) => mission.id !== id);
