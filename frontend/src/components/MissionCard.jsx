@@ -1,8 +1,33 @@
 import './MissionCard.css';
 
-export function MissionCard({ mission, onDelete }) {
+function getReadinessScore(mission) {
+  const level = mission.analysis?.riskAnalysis?.level;
+  const base = level === 'Low' ? 88 : level === 'Medium' ? 64 : level === 'High' ? 38 : 50;
+  const payloadPenalty = Math.min(18, mission.payload * 4);
+  const distancePenalty = Math.min(18, mission.distance * 1.2);
+  return Math.max(20, Math.round(base - payloadPenalty - distancePenalty / 3));
+}
+
+export function MissionCard({ mission, onDelete, historyMissions = [] }) {
   const { id, name, distance, payload, environment, weather, terrain, analysis, createdAt } =
     mission;
+  const comparisonPool = historyMissions.filter((entry) => entry.id !== id);
+  const avgDistance = comparisonPool.length
+    ? comparisonPool.reduce((sum, entry) => sum + entry.distance, 0) / comparisonPool.length
+    : distance;
+  const avgPayload = comparisonPool.length
+    ? comparisonPool.reduce((sum, entry) => sum + entry.payload, 0) / comparisonPool.length
+    : payload;
+  const readinessScore = getReadinessScore(mission);
+  const noveltyIndex = Math.min(
+    100,
+    Math.round(
+      Math.abs(distance - avgDistance) * 6 +
+        Math.abs(payload - avgPayload) * 18 +
+        (comparisonPool.some((entry) => entry.environment === environment) ? 8 : 28)
+    )
+  );
+  const missionDna = `${environment}-${analysis?.riskAnalysis?.level || 'Unknown'}-${terrain}`;
 
   const getRiskColor = (level) => {
     switch (level) {
@@ -85,6 +110,27 @@ export function MissionCard({ mission, onDelete }) {
                   Warning: {factor}
                 </div>
               ))}
+            </div>
+          </div>
+
+          <div className="analysis-section">
+            <h4>Unique Mission Insights</h4>
+            <div className="insight-grid">
+              <div className="insight-tile">
+                <span className="insight-tile-label">Readiness Score</span>
+                <strong>{readinessScore}/100</strong>
+                <p>How closely this mission fits a conservative, repeatable operating profile.</p>
+              </div>
+              <div className="insight-tile">
+                <span className="insight-tile-label">Novelty Index</span>
+                <strong>{noveltyIndex}/100</strong>
+                <p>How far this mission moves from your usual range, payload, and environment pattern.</p>
+              </div>
+              <div className="insight-tile">
+                <span className="insight-tile-label">Mission DNA</span>
+                <strong>{missionDna}</strong>
+                <p>A compact fingerprint for comparing this mission with future planning patterns.</p>
+              </div>
             </div>
           </div>
 

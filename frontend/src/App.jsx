@@ -86,7 +86,7 @@ function AppContent() {
           </div>
 
           <div className="content">
-            {missions.length > 0 ? <Dashboard missions={missions} /> : null}
+            {missions.length > 0 ? <Dashboard missions={missions} selectedMission={selectedMission} /> : null}
 
             {selectedMission ? (
               <div className="results-section">
@@ -101,7 +101,11 @@ function AppContent() {
                     This result is temporary. Sign in if you want it added to your mission history.
                   </div>
                 ) : null}
-                <MissionCard mission={selectedMission} onDelete={handleDelete} />
+                <MissionCard
+                  mission={selectedMission}
+                  onDelete={handleDelete}
+                  historyMissions={missions}
+                />
               </div>
             ) : (
               <div className="missions-section">

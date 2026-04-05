@@ -52,6 +52,42 @@
   gap: 1.5rem;
 }
 
+.insight-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.insight-card {
+  background: linear-gradient(135deg, #ffffff 0%, #eef2ff 100%);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid #dbe4ff;
+}
+
+.insight-card strong {
+  display: block;
+  font-size: 1.35rem;
+  color: #1f2a44;
+  margin: 0.2rem 0 0.35rem;
+}
+
+.insight-card p {
+  color: #58627a;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.insight-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #4f46e5;
+  font-weight: 700;
+}
+
 .chart-card {
   background: white;
   border-radius: 8px;
@@ -113,6 +149,10 @@
   }
 
   .stats-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .insight-strip {
     grid-template-columns: 1fr;
   }
 }

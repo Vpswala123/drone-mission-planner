@@ -136,6 +136,41 @@
   gap: 0.75rem;
 }
 
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.insight-tile {
+  padding: 0.85rem;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #eef2ff 0%, #ffffff 100%);
+  border: 1px solid #dbe4ff;
+}
+
+.insight-tile-label {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #4f46e5;
+  font-weight: 700;
+}
+
+.insight-tile strong {
+  display: block;
+  margin: 0.35rem 0;
+  color: #1a1a2e;
+  font-size: 1rem;
+}
+
+.insight-tile p {
+  font-size: 0.82rem;
+  color: #596078;
+  line-height: 1.45;
+}
+
 .est-item {
   display: flex;
   flex-direction: column;
@@ -163,6 +198,10 @@
   }
 
   .estimation-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .insight-grid {
     grid-template-columns: 1fr;
   }
 }
