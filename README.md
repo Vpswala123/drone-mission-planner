@@ -8,7 +8,7 @@ A full-stack web application for planning and analyzing drone missions.
 - AI-generated drone recommendations
 - Risk analysis with mitigation steps
 - Flight estimation for time, battery usage, and range
-- Public demo mode with local mission analysis and browser-only mission history
+- Public demo mode with browser-local sign-in and separate mission history per account
 - Optional auth and Netlify serverless backend for private deployments
 - GitHub Pages deployment workflow for a zero-secret public build
 
@@ -62,7 +62,7 @@ cd frontend
 npm run dev
 ```
 
-This mode requires no API keys, no login, and no backend.
+This mode requires no API keys and no backend. Accounts and mission history are stored locally in the browser, separated per signed-in account.
 
 ## Optional Full Backend Mode
 

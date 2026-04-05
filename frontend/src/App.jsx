@@ -52,7 +52,7 @@ function AppContent() {
             <p>
               {authEnabled
                 ? 'Plan and analyze drone missions with AI-powered recommendations'
-                : 'Public demo mode with local mission analysis and browser-only storage'}
+                : 'Free demo mode with browser-local accounts and mission history'}
             </p>
           </div>
           <UserMenu />
@@ -134,7 +134,7 @@ function AppContent() {
           <p>
             {authEnabled
               ? 'Powered by kimi-k2.5:cloud AI'
-              : 'Running in public demo mode without external API keys'}
+              : 'Running in free demo mode without external API keys'}
           </p>
         </div>
       </footer>

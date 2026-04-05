@@ -12,16 +12,12 @@ export function UserMenu() {
         </div>
         <div className="user-details">
           <span className="user-name">{user?.name || 'User'}</span>
-          <span className="user-email">
-            {authEnabled ? user?.email : 'Public demo mode'}
-          </span>
+          <span className="user-email">{authEnabled ? user?.email : user?.email}</span>
         </div>
       </div>
-      {authEnabled ? (
-        <button className="logout-button" onClick={logout}>
-          Sign Out
-        </button>
-      ) : null}
+      <button className="logout-button" onClick={logout}>
+        Sign Out
+      </button>
     </div>
   );
 }

@@ -6,6 +6,7 @@ export const API_BASE_URL =
 
 export const STORAGE_KEYS = {
   missions: 'drone-mission-planner.missions',
+  users: 'drone-mission-planner.users',
   token: 'token',
   user: 'user',
 };

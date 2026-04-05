@@ -19,17 +19,42 @@ function getAuthHeaders() {
   };
 }
 
-function loadStoredMissions() {
+function getStoredUser() {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEYS.missions) || '[]');
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.user) || 'null');
   } catch {
-    localStorage.removeItem(STORAGE_KEYS.missions);
+    localStorage.removeItem(STORAGE_KEYS.user);
+    return null;
+  }
+}
+
+function getMissionStorageKey(userId) {
+  return `${STORAGE_KEYS.missions}.${userId}`;
+}
+
+function loadStoredMissions() {
+  const user = getStoredUser();
+
+  if (!user?.id) {
+    return [];
+  }
+
+  try {
+    return JSON.parse(localStorage.getItem(getMissionStorageKey(user.id)) || '[]');
+  } catch {
+    localStorage.removeItem(getMissionStorageKey(user.id));
     return [];
   }
 }
 
 function storeMissions(missions) {
-  localStorage.setItem(STORAGE_KEYS.missions, JSON.stringify(missions));
+  const user = getStoredUser();
+
+  if (!user?.id) {
+    throw new Error('Please sign in to save mission history');
+  }
+
+  localStorage.setItem(getMissionStorageKey(user.id), JSON.stringify(missions));
 }
 
 /**
@@ -37,7 +62,16 @@ function storeMissions(missions) {
  */
 export async function analyzeMission(missionData) {
   if (!AUTH_ENABLED) {
-    const mission = createDemoMission(missionData);
+    const user = getStoredUser();
+
+    if (!user?.id) {
+      throw new Error('Please sign in to create missions');
+    }
+
+    const mission = createDemoMission({
+      ...missionData,
+      name: missionData.name,
+    });
     const missions = [mission, ...loadStoredMissions()];
     storeMissions(missions);
     return { success: true, mission };

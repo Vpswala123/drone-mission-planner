@@ -4,14 +4,6 @@ import { AUTH_ENABLED, STORAGE_KEYS } from '../config';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    if (!AUTH_ENABLED) {
-      return {
-        id: 'guest-user',
-        name: 'Guest Pilot',
-        email: 'guest@local.demo',
-      };
-    }
-
     const token = localStorage.getItem(STORAGE_KEYS.token);
     const storedUser = localStorage.getItem(STORAGE_KEYS.user);
 
@@ -36,22 +28,14 @@ export function AuthProvider({ children }) {
   const logout = () => {
     localStorage.removeItem(STORAGE_KEYS.token);
     localStorage.removeItem(STORAGE_KEYS.user);
-    setUser(
-      AUTH_ENABLED
-        ? null
-        : {
-            id: 'guest-user',
-            name: 'Guest Pilot',
-            email: 'guest@local.demo',
-          }
-    );
+    setUser(null);
   };
 
   const value = {
     user,
     login,
     logout,
-    isAuthenticated: AUTH_ENABLED ? !!user : true,
+    isAuthenticated: !!user,
     loading: false,
     authEnabled: AUTH_ENABLED,
   };
